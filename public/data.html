@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherApp</title>
+    <!--Leafletjs library-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+    
+    <style>#mapid{
+           height: 380px;
+           width: 800px;
+           
+    }
+    </style>
+</head>
+<body>
+    <h1>Weather App</h1>
+    <a href="/">check in</a>
+    <a href="/data.html">View Data</a>
+    <hr>
+    <div id="mapid"></div>
+    <script>
+        const map = L.map("mapid").setView([0,0], 1);
+        const attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributor';
+        const tilesUrl="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+        const tiles=L.tileLayer(tilesUrl,{attribution});
+        tiles.addTo(map)
+        async function getData(){
+            const response=await fetch('/db')
+            const returned_data=await response.json()
+            console.log(returned_data)
+            for(datas of returned_data){
+                //const date=new Date(datas.time_of_depart).toLocaleString()
+                const mark=L.marker([datas.lat,datas.long]).addTo(map);
+                const text=`Temperature:${datas.temperature}°F
+                Weather:${datas.weather}
+                The air report in ${datas.location} is AQI ${datas.airquality} 
+                according to AQI value based on US EPA standard</div>`
+                mark.bindPopup(text);
+              
+            }
+          }
+          getData()
+    </script>
+</body>
+</html>

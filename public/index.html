@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherApp</title>
+</head>
+
+<body><!--(K − 273.15) × 9/5 + 32-->
+    <script>
+        if('geolocation' in navigator){
+            navigator.geolocation.getCurrentPosition(async (position)=>{
+                try{
+                document.getElementById('lat').innerText=position.coords.latitude
+                document.getElementById('long').innerText=position.coords.longitude
+                
+                const lat=position.coords.latitude
+                const long=position.coords.longitude
+                const time_of_depart=Date.now()
+                const data={lat,long,time_of_depart}
+                const response=await fetch(`/weather/${lat},${long}`)
+                const jsondata=await response.json()
+                console.log(jsondata)
+                const air_status={
+                    loc:jsondata.air_report.data.city,
+                    airql:jsondata.air_report.data.current.pollution.aqius
+                }
+                const curr_temp=(((jsondata.weather_report.main.temp-273.15)*(9/5))+32).toFixed(2)
+                const weather_status={
+                    temp:curr_temp,
+                    weather:jsondata.weather_report.weather[0].description
+                }
+                document.getElementById('temp').innerText=(((jsondata.weather_report.main.temp-273.15)*(9/5))+32).toFixed(2)
+                document.getElementById('weath').innerText=jsondata.weather_report.weather[0].description
+                document.getElementById('loc').innerText=air_status.loc
+                document.getElementById('aqius').innerText=air_status.airql
+                data.location=air_status.loc
+                data.airquality=air_status.airql
+                data.temperature=weather_status.temp
+                data.weather=weather_status.weather
+                document.getElementById('but').addEventListener('click',async ()=>{
+                const options={
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                       // 'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body:JSON.stringify(data)
+                    }
+                    const res=await fetch('/post',options)
+                    const json=await res.json()
+                    console.log(json)
+
+                   
+            })
+           }catch(error){
+               console.error(error)
+               console.log("something went wrong")
+           }
+        })
+    
+    }
+    </script>
+    <h1>Weather App</h1>
+    <a href="/">check in</a>
+    <a href="/data.html">View Data</a>
+    <div>Latitude:<span id="lat"></span>°</div>
+    <div>Lonitude:<span id="long"></span>°</div>
+    <div>Temperature:<span id="temp"></span>°F</div>
+    <div>Weather:<span id="weath"></span></div>
+    <div>The air report in <span id="loc"></span> is AQI <span id="aqius"></span></div>
+    <div>according to AQI value based on US EPA standard</div>
+    <button type="submit" id="but">Submit</button>
+</body>
+</html>
