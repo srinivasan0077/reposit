@@ -4,7 +4,8 @@ const app=Express()
 const Datastore = require('nedb')
 const fetch=require("node-fetch")
 require('dotenv').config()
-app.listen(5000)
+const port=process.env.PORT
+app.listen(port)
 app.use(Express.static('public'))
 app.use(Express.json({limit:'50mb'}))//using express.json() func server can understand incoming json data
 
